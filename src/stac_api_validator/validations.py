@@ -3,6 +3,7 @@ import copy
 import itertools
 import json
 import logging
+import os
 import re
 import time
 from dataclasses import dataclass
@@ -381,7 +382,7 @@ def retrieve(
     content_type: Optional[str] = None,
 ) -> Tuple[int, Optional[Dict[str, Any]], Optional[Mapping[str, str]]]:
     resp = r_session.send(
-        Request(method.value, url, headers=headers, params=params, json=body).prepare()
+        Request(method.value, url, headers=headers, params=params, json=body, auth=(os.getenv('username'), os.getenv('password'))).prepare()
     )
 
     # todo: handle connection exception, etc.
@@ -2854,7 +2855,7 @@ def validate_item_search_intersects(
             search_url,
             errors,
             Context.ITEM_SEARCH,
-            body={"collections": [collection], "intersects": geometry},
+            body={"collections": [collection], "intersects": json.loads(geometry)},
             r_session=r_session,
         )
         if not item_collection or not item_collection.get("features"):
